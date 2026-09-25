@@ -1,0 +1,6 @@
+{
+  "name": "CrowdFundAI+",
+  "description": "Intelligent FinTech Crowdfunding Success Prediction Using Machine Learning and Explainable AI",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
