@@ -156,10 +156,16 @@ export const PredictionResultPage: React.FC = () => {
           </div>
           <div className="py-2">
             {prediction.successProbability !== null ? (
-              <div className="text-2xl font-bold text-emerald-400 font-mono">
-                {(prediction.successProbability * 100).toFixed(1)}%
-              </div>
+              (() => {
+                console.log("CROWDFUNDAI FINAL PROBABILITY:", prediction.successProbability);
+                return (
+                  <div className="text-2xl font-bold text-emerald-400 font-mono">
+                    {(prediction.successProbability * 100).toFixed(1)}%
+                  </div>
+                );
+              })()
             ) : (
+
               <>
                 <div className="text-lg font-semibold text-amber-400 font-mono">
                   Prediction unavailable

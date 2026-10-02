@@ -1,0 +1,21 @@
+services:
+  # Python FastAPI ML Backend & Unified Service
+  - type: web
+    name: crowdfundai-api
+    env: python
+    buildCommand: "pip install -r backend/requirements.txt && cd frontend && npm install && npm run build && cd .."
+    startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      - key: NODE_VERSION
+        value: 20.0.0
+
+  # Static Frontend Site (Optional standalone frontend)
+  - type: static
+    name: crowdfundai-frontend
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: "./frontend/dist"
+    envVars:
+      - key: VITE_ML_API_URL
+        value: https://crowdfundai-api.onrender.com

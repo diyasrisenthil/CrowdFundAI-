@@ -1,0 +1,79 @@
+{
+  "top_features": [
+    {
+      "feature": "Funding Goal (USD)",
+      "raw_feature": "num__usd_goal_real",
+      "mean_abs_shap": 0.3062
+    },
+    {
+      "feature": "Category Historical Success Rate",
+      "raw_feature": "num__category_success_rate",
+      "mean_abs_shap": 0.3001
+    },
+    {
+      "feature": "Campaign Duration (Days)",
+      "raw_feature": "num__duration_days",
+      "mean_abs_shap": 0.1982
+    },
+    {
+      "feature": "Launch Year",
+      "raw_feature": "num__launched_year",
+      "mean_abs_shap": 0.1605
+    },
+    {
+      "feature": "Title Word Count",
+      "raw_feature": "num__name_word_count",
+      "mean_abs_shap": 0.156
+    },
+    {
+      "feature": "Launch Hour of Day",
+      "raw_feature": "num__launched_hour",
+      "mean_abs_shap": 0.1218
+    },
+    {
+      "feature": "Category: Tabletop Games",
+      "raw_feature": "cat__category_Tabletop Games",
+      "mean_abs_shap": 0.0729
+    },
+    {
+      "feature": "Goal vs Category Median Ratio",
+      "raw_feature": "num__goal_to_cat_median_ratio",
+      "mean_abs_shap": 0.0699
+    },
+    {
+      "feature": "Title Character Length",
+      "raw_feature": "num__name_length",
+      "mean_abs_shap": 0.0602
+    },
+    {
+      "feature": "Launch Day of Week",
+      "raw_feature": "num__launched_day_of_week",
+      "mean_abs_shap": 0.0453
+    },
+    {
+      "feature": "Daily Funding Target (USD/Day)",
+      "raw_feature": "num__goal_per_day",
+      "mean_abs_shap": 0.0446
+    },
+    {
+      "feature": "USD Currency Flag",
+      "raw_feature": "num__is_usd_currency",
+      "mean_abs_shap": 0.0369
+    },
+    {
+      "feature": "Launch Month",
+      "raw_feature": "num__launched_month",
+      "mean_abs_shap": 0.0354
+    },
+    {
+      "feature": "Category: Indie Rock",
+      "raw_feature": "cat__category_Indie Rock",
+      "mean_abs_shap": 0.0274
+    },
+    {
+      "feature": "Category: Art Books",
+      "raw_feature": "cat__category_Art Books",
+      "mean_abs_shap": 0.0212
+    }
+  ]
+}

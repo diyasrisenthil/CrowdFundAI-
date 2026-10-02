@@ -5,37 +5,35 @@
 
 // Module 1: Data Collection & Management Entities
 export interface CampaignInput {
-  // Section A: Campaign Information
+  // Legitimate pre-launch dataset features
   campaignName: string;
   category: CampaignCategory;
+  subCategory?: string;
   country: string;
+  currency: string;
 
-  // Section B: Funding Details
   fundingGoal: number; // in USD
   campaignDuration: number; // in days
-
-  // Section C: Creator Information
-  creatorExperience: 'First-time' | '1-2 Prior Campaigns' | '3+ Prior Campaigns' | 'Serial Crowdfunder';
-  previousCampaignCount: number;
-
-  // Section D: Engagement & Pre-launch Information
-  hasVideo: boolean;
-  preLaunchFollowers?: number;
-  initialBackersExpected?: number;
-  rewardTierCount?: number;
+  launchMonth?: number; // 1-12
+  launchHour?: number; // 0-23
 }
 
 export type CampaignCategory =
-  | 'Technology'
-  | 'FinTech'
-  | 'Design & Hardware'
-  | 'Games'
-  | 'Film & Video'
-  | 'Publishing'
-  | 'Music'
   | 'Art'
-  | 'Food & Craft'
-  | 'Community & Social';
+  | 'Comics'
+  | 'Crafts'
+  | 'Dance'
+  | 'Design'
+  | 'Fashion'
+  | 'Film & Video'
+  | 'Food'
+  | 'Games'
+  | 'Journalism'
+  | 'Music'
+  | 'Photography'
+  | 'Publishing'
+  | 'Technology'
+  | 'Theater';
 
 // Module 3 & 4: Prediction & Regression Output Entities
 export interface ShapFactor {
@@ -92,7 +90,7 @@ export interface RegressionMetrics {
 }
 
 export interface ModelComparisonItem {
-  modelName: 'Logistic Regression' | 'Random Forest' | 'XGBoost' | 'Linear Regression' | 'Random Forest Regressor' | 'XGBoost Regressor';
+  modelName: 'Logistic Regression' | 'Decision Tree' | 'Random Forest' | 'Gradient Boosting' | 'XGBoost' | 'Linear Regression' | 'Random Forest Regressor' | 'XGBoost Regressor';
   modelType: 'Classification' | 'Regression';
   status: 'Trained' | 'Not Trained' | 'Evaluating';
   selectedAsBest: boolean;

@@ -1,9 +1,9 @@
 /**
- * CrowdFundAI+ API Client
- * Configured to connect to the Python ML backend (FastAPI / Flask) and MySQL API Gateway.
+ * CrowdFundAI API Client
+ * Configured to connect to the Python FastAPI ML backend service.
  */
 
-const API_BASE_URL = (import.meta as any).env?.VITE_ML_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = (import.meta as any).env?.VITE_ML_API_URL || 'http://localhost:8000';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -34,7 +34,7 @@ export class ApiClient {
   public async checkHealth(): Promise<{ status: string; connected: boolean; service?: string }> {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
       const res = await fetch(`${this.baseUrl}/health`, {
         signal: controller.signal,
         headers: { 'Content-Type': 'application/json' },
@@ -42,11 +42,10 @@ export class ApiClient {
       clearTimeout(timeoutId);
       if (res.ok) {
         const data = await res.json();
-        return { status: 'connected', connected: true, service: data.service || 'CrowdFundAI+ ML Gateway' };
+        return { status: 'connected', connected: true, service: data.service || 'CrowdFundAI ML Gateway' };
       }
       return { status: 'disconnected', connected: false };
     } catch {
-      // Backend not running yet (expected during Stage 1)
       return { status: 'disconnected', connected: false };
     }
   }

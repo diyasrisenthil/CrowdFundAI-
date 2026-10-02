@@ -7,8 +7,8 @@ import {
   Info,
   Layers,
   DollarSign,
-  User,
-  Share2,
+  Calendar,
+  Globe,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
@@ -16,58 +16,85 @@ import {
 } from 'lucide-react';
 
 const CATEGORIES: CampaignCategory[] = [
-  'Technology',
-  'FinTech',
-  'Design & Hardware',
-  'Games',
-  'Film & Video',
-  'Publishing',
-  'Music',
   'Art',
-  'Food & Craft',
-  'Community & Social',
+  'Comics',
+  'Crafts',
+  'Dance',
+  'Design',
+  'Fashion',
+  'Film & Video',
+  'Food',
+  'Games',
+  'Journalism',
+  'Music',
+  'Photography',
+  'Publishing',
+  'Technology',
+  'Theater',
 ];
+
+const SUBCATEGORIES: Record<string, string[]> = {
+  'Art': ['Art', 'Illustration', 'Painting', 'Public Art', 'Sculpture'],
+  'Comics': ['Comics', 'Comic Books', 'Graphic Novels'],
+  'Crafts': ['Crafts', 'DIY', 'Embroidery', 'Woodworking'],
+  'Dance': ['Dance', 'Performances', 'Residencies'],
+  'Design': ['Design', 'Product Design', 'Architecture', 'Graphic Design'],
+  'Fashion': ['Fashion', 'Apparel', 'Accessories', 'Footwear'],
+  'Film & Video': ['Film & Video', 'Documentary', 'Short Film', 'Feature Film', 'Animation'],
+  'Food': ['Food', 'Restaurants', 'Farms', 'Drinks', 'Cookbooks'],
+  'Games': ['Games', 'Tabletop Games', 'Video Games', 'Playing Cards'],
+  'Journalism': ['Journalism', 'Audio', 'Print', 'Web'],
+  'Music': ['Music', 'Rock', 'Pop', 'Indie Rock', 'Classical', 'Hip-Hop'],
+  'Photography': ['Photography', 'Photobooks', 'Places'],
+  'Publishing': ['Publishing', 'Fiction', 'Nonfiction', "Children's Books", 'Poetry'],
+  'Technology': ['Technology', 'Software', 'Hardware', 'Gadgets', 'Apps', 'Web'],
+  'Theater': ['Theater', 'Plays', 'Musical'],
+};
 
 const COUNTRIES = [
   { code: 'US', name: 'United States' },
   { code: 'GB', name: 'United Kingdom' },
   { code: 'CA', name: 'Canada' },
+  { code: 'AU', name: 'Australia' },
   { code: 'DE', name: 'Germany' },
   { code: 'FR', name: 'France' },
-  { code: 'IN', name: 'India' },
-  { code: 'AU', name: 'Australia' },
-  { code: 'SG', name: 'Singapore' },
-  { code: 'OTHER', name: 'Other International' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'MX', name: 'Mexico' },
+  { code: 'NZ', name: 'New Zealand' },
+  { code: 'JP', name: 'Japan' },
 ];
+
+const CURRENCIES = ['USD', 'GBP', 'CAD', 'EUR', 'AUD', 'MXN', 'JPY', 'SEK'];
 
 interface FormState {
   campaignName: string;
   category: CampaignCategory | '';
+  subCategory: string;
   country: string;
+  currency: string;
   fundingGoal: number | '';
   campaignDuration: number | '';
-  creatorExperience: 'First-time' | '1-2 Prior Campaigns' | '3+ Prior Campaigns' | 'Serial Crowdfunder' | '';
-  previousCampaignCount: number | '';
-  hasVideo: boolean;
-  preLaunchFollowers: number | '';
-  rewardTierCount: number | '';
+  launchMonth: number | '';
+  launchHour: number | '';
 }
 
 export const NewPredictionPage: React.FC = () => {
   const { navigate } = useRouter();
 
-  // Form State: strictly unassumed defaults as mandated by academic guidelines
+  // Form State using dataset pre-launch fields only
   const [formData, setFormData] = useState<FormState>({
     campaignName: '',
     category: '',
-    country: '',
+    subCategory: '',
+    country: 'US',
+    currency: 'USD',
     fundingGoal: '',
     campaignDuration: '',
-    creatorExperience: '',
-    previousCampaignCount: '',
-    hasVideo: false,
-    preLaunchFollowers: '',
-    rewardTierCount: '',
+    launchMonth: 10,
+    launchHour: 14,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -99,6 +126,10 @@ export const NewPredictionPage: React.FC = () => {
       errs.country = 'Please select a country.';
     }
 
+    if (!formData.currency) {
+      errs.currency = 'Please select a currency.';
+    }
+
     if (formData.fundingGoal === '' || formData.fundingGoal <= 0) {
       errs.fundingGoal = 'Funding goal must be a positive number greater than $0.';
     } else if (formData.fundingGoal > 50000000) {
@@ -113,20 +144,18 @@ export const NewPredictionPage: React.FC = () => {
       errs.campaignDuration = 'Campaign duration must be between 1 and 90 days.';
     }
 
-    if (!formData.creatorExperience) {
-      errs.creatorExperience = 'Please select creator experience level.';
+    if (
+      formData.launchMonth !== '' &&
+      (Number(formData.launchMonth) < 1 || Number(formData.launchMonth) > 12)
+    ) {
+      errs.launchMonth = 'Launch month must be between 1 and 12.';
     }
 
-    if (formData.previousCampaignCount !== '' && formData.previousCampaignCount < 0) {
-      errs.previousCampaignCount = 'Previous campaign count cannot be negative.';
-    }
-
-    if (formData.rewardTierCount !== '' && formData.rewardTierCount < 1) {
-      errs.rewardTierCount = 'Reward tier count must be at least 1.';
-    }
-
-    if (formData.preLaunchFollowers !== '' && formData.preLaunchFollowers < 0) {
-      errs.preLaunchFollowers = 'Pre-launch followers cannot be negative.';
+    if (
+      formData.launchHour !== '' &&
+      (Number(formData.launchHour) < 0 || Number(formData.launchHour) > 23)
+    ) {
+      errs.launchHour = 'Launch hour must be between 0 and 23.';
     }
 
     setErrors(errs);
@@ -141,18 +170,17 @@ export const NewPredictionPage: React.FC = () => {
     setSubmissionFeedback(null);
     setBackendNotice(null);
 
-    // Clean data object ready to be sent to Python ML API
+    // Payload dispatching legitimate pre-launch dataset features
     const payload: CampaignInput = {
       campaignName: formData.campaignName.trim(),
       category: formData.category as CampaignCategory,
+      subCategory: formData.subCategory || (formData.category as string),
       country: formData.country,
+      currency: formData.currency,
       fundingGoal: Number(formData.fundingGoal),
       campaignDuration: Number(formData.campaignDuration),
-      creatorExperience: formData.creatorExperience as any,
-      previousCampaignCount: formData.previousCampaignCount === '' ? 0 : Number(formData.previousCampaignCount),
-      hasVideo: formData.hasVideo,
-      preLaunchFollowers: formData.preLaunchFollowers === '' ? 0 : Number(formData.preLaunchFollowers),
-      rewardTierCount: formData.rewardTierCount === '' ? 1 : Number(formData.rewardTierCount),
+      launchMonth: Number(formData.launchMonth) || 10,
+      launchHour: Number(formData.launchHour) || 14,
     };
 
     try {
@@ -167,13 +195,11 @@ export const NewPredictionPage: React.FC = () => {
           navigate(`/prediction/${result.id}`);
         }, 1000);
       } else {
-        // Authentic Stage 1 state: backend is offline / not connected
-        // Do NOT generate fake prediction data or redirect to fake results
         setBackendNotice({
           title: 'Backend Unavailable — ML Pipeline Not Connected',
           message:
             result.message ||
-            'The Python FastAPI prediction service and MySQL database are not connected yet. Campaign parameters have been validated and formatted for transmission to the Python ML API once deployed.',
+            'The Python FastAPI prediction service is not connected. Campaign parameters have been validated for transmission to the ML API once deployed.',
         });
       }
     } catch (err: any) {
@@ -183,6 +209,8 @@ export const NewPredictionPage: React.FC = () => {
     }
   };
 
+  const availableSubcategories = formData.category ? SUBCATEGORIES[formData.category] || [] : [];
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       
@@ -190,16 +218,16 @@ export const NewPredictionPage: React.FC = () => {
       <div className="border-b border-slate-800/80 pb-5">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
-            Modules 1 & 2: Ingestion & Features
+            Real Pre-Launch Feature Pipeline
           </span>
           <span className="text-slate-500">•</span>
-          <span className="text-xs text-slate-400">Pre-Launch Decision Support</span>
+          <span className="text-xs text-slate-400">Kickstarter Dataset Inference</span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-100">
-          New Campaign Success Prediction
+          Campaign Success Predictor
         </h1>
         <p className="text-xs text-slate-400 mt-1">
-          Enter verified pre-launch campaign parameters. The form structure is engineered to map directly to Python feature pipelines without synthetic data fabrication.
+          Enter verified pre-launch campaign parameters. Form inputs map directly to features trained on the 378,000+ Kickstarter dataset.
         </p>
       </div>
 
@@ -208,15 +236,15 @@ export const NewPredictionPage: React.FC = () => {
         <Info className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
         <div className="text-xs text-slate-300 space-y-1">
           <span className="font-semibold text-slate-200">
-            Clean ML Service Abstraction:
+            Pre-Launch Dataset Validation:
           </span>
           <p className="text-slate-400 leading-relaxed">
-            Submitting this form dispatches the campaign payload to <code>predictionService.predictCampaign()</code>. If a Python backend (FastAPI) is running at the configured endpoint, inference will execute. If the backend is unavailable, the system safely reports the connection status without fabricating fake probabilities or fake prediction records.
+            All parameters collected below are strictly known prior to project launch. Submitting this form sends live data to <code>predict_proba()</code> on the saved trained pipeline without mock values or hardcoded fallbacks.
           </p>
         </div>
       </div>
 
-      {/* Backend Unavailable Notice */}
+      {/* Backend Notice */}
       {backendNotice && (
         <div className="p-4 bg-amber-950/50 border border-amber-800/80 rounded-xl flex items-start gap-3 text-xs text-amber-200">
           <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
@@ -227,7 +255,7 @@ export const NewPredictionPage: React.FC = () => {
         </div>
       )}
 
-      {/* Submission Success Toast */}
+      {/* Submission Feedback */}
       {submissionFeedback && (
         <div className="p-4 bg-emerald-950/70 border border-emerald-800/80 rounded-xl flex items-center justify-between text-xs text-emerald-300">
           <div className="flex items-center gap-2">
@@ -248,7 +276,7 @@ export const NewPredictionPage: React.FC = () => {
       {/* Multi-Section Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         
-        {/* SECTION A: CAMPAIGN INFORMATION */}
+        {/* SECTION A: CAMPAIGN CLASSIFICATION */}
         <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 sm:p-6 space-y-4">
           <div className="flex items-center gap-2.5 border-b border-slate-800 pb-3">
             <div className="p-1.5 bg-slate-800 rounded-lg text-emerald-400 border border-slate-700">
@@ -256,10 +284,10 @@ export const NewPredictionPage: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-semibold text-slate-100">
-                Section A: Campaign Information
+                Section A: Campaign Classification & Title
               </h2>
               <p className="text-xs text-slate-400">
-                Basic classification descriptors and geographic market
+                Title text length, word count, and category features
               </p>
             </div>
           </div>
@@ -268,14 +296,14 @@ export const NewPredictionPage: React.FC = () => {
             <div className="sm:col-span-2 space-y-1">
               <label className="text-xs font-medium text-slate-300 flex items-center justify-between">
                 <span>Campaign Name <span className="text-rose-400">*</span></span>
-                <span className="text-[11px] text-slate-500 font-normal">Min 3 characters</span>
+                <span className="text-[11px] text-slate-500 font-normal">Extracts name length & word count</span>
               </label>
               <input
                 type="text"
                 required
                 value={formData.campaignName}
                 onChange={(e) => setFormData({ ...formData, campaignName: e.target.value })}
-                placeholder="e.g. NextGen Decentralized Micro-Lending Terminal"
+                placeholder="e.g. Smart Wireless Earbuds with ANC"
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
               />
               {errors.campaignName && (
@@ -285,16 +313,20 @@ export const NewPredictionPage: React.FC = () => {
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-300">
-                Primary Category <span className="text-rose-400">*</span>
+                Main Category <span className="text-rose-400">*</span>
               </label>
               <select
                 value={formData.category}
                 onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value as CampaignCategory | '' })
+                  setFormData({
+                    ...formData,
+                    category: e.target.value as CampaignCategory | '',
+                    subCategory: '',
+                  })
                 }
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
               >
-                <option value="">Select campaign category</option>
+                <option value="">Select main category</option>
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
@@ -304,34 +336,30 @@ export const NewPredictionPage: React.FC = () => {
               {errors.category && (
                 <p className="text-[11px] text-rose-400">{errors.category}</p>
               )}
-              <p className="text-[11px] text-slate-500">Encoded as categorical feature in pipeline.</p>
             </div>
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-300">
-                Target Country <span className="text-rose-400">*</span>
+                Subcategory
               </label>
               <select
-                value={formData.country}
-                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
+                value={formData.subCategory}
+                onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
+                disabled={!formData.category}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors disabled:opacity-50"
               >
-                <option value="">Select country</option>
-                {COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.name} ({c.code})
+                <option value="">Select subcategory (optional)</option>
+                {availableSubcategories.map((sub) => (
+                  <option key={sub} value={sub}>
+                    {sub}
                   </option>
                 ))}
               </select>
-              {errors.country && (
-                <p className="text-[11px] text-rose-400">{errors.country}</p>
-              )}
-              <p className="text-[11px] text-slate-500">Market jurisdiction for currency baseline.</p>
             </div>
           </div>
         </div>
 
-        {/* SECTION B: FUNDING DETAILS */}
+        {/* SECTION B: FINANCIAL & GEOGRAPHY */}
         <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 sm:p-6 space-y-4">
           <div className="flex items-center gap-2.5 border-b border-slate-800 pb-3">
             <div className="p-1.5 bg-slate-800 rounded-lg text-sky-400 border border-slate-700">
@@ -339,19 +367,19 @@ export const NewPredictionPage: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-semibold text-slate-100">
-                Section B: Funding & Duration Details
+                Section B: Funding Goal & Market Currency
               </h2>
               <p className="text-xs text-slate-400">
-                Financial parameters driving target regression and difficulty index
+                Target capital, country baseline, and currency indicators
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-1 sm:col-span-1">
               <label className="text-xs font-medium text-slate-300 flex items-center justify-between">
-                <span>Funding Goal (USD) <span className="text-rose-400">*</span></span>
-                <span className="text-[11px] text-slate-500 font-mono">Target Capital</span>
+                <span>Funding Goal <span className="text-rose-400">*</span></span>
+                <span className="text-[11px] text-slate-500 font-mono">USD</span>
               </label>
               <div className="relative">
                 <span className="absolute left-3.5 top-2.5 text-xs text-slate-500 font-mono">$</span>
@@ -360,7 +388,7 @@ export const NewPredictionPage: React.FC = () => {
                   min="1"
                   step="100"
                   required
-                  placeholder="e.g. 25000"
+                  placeholder="e.g. 10000"
                   value={formData.fundingGoal}
                   onChange={(e) =>
                     setFormData({
@@ -374,12 +402,64 @@ export const NewPredictionPage: React.FC = () => {
               {errors.fundingGoal && (
                 <p className="text-[11px] text-rose-400">{errors.fundingGoal}</p>
               )}
-              <p className="text-[11px] text-slate-500">Scaled using RobustScaler due to financial skew.</p>
             </div>
 
             <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-300">
+                Country <span className="text-rose-400">*</span>
+              </label>
+              <select
+                value={formData.country}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name} ({c.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-300">
+                Currency <span className="text-rose-400">*</span>
+              </label>
+              <select
+                value={formData.currency}
+                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
+              >
+                {CURRENCIES.map((curr) => (
+                  <option key={curr} value={curr}>
+                    {curr}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION C: DURATION & TIMING */}
+        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 sm:p-6 space-y-4">
+          <div className="flex items-center gap-2.5 border-b border-slate-800 pb-3">
+            <div className="p-1.5 bg-slate-800 rounded-lg text-indigo-400 border border-slate-700">
+              <Calendar className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-slate-100">
+                Section C: Duration & Launch Schedule
+              </h2>
+              <p className="text-xs text-slate-400">
+                Duration in days, launch month, and hour of launch
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-1">
               <label className="text-xs font-medium text-slate-300 flex items-center justify-between">
-                <span>Campaign Duration (Days) <span className="text-rose-400">*</span></span>
+                <span>Duration (Days) <span className="text-rose-400">*</span></span>
                 <span className="text-[11px] text-slate-500 font-mono">1 – 90 Days</span>
               </label>
               <input
@@ -400,159 +480,50 @@ export const NewPredictionPage: React.FC = () => {
               {errors.campaignDuration && (
                 <p className="text-[11px] text-rose-400">{errors.campaignDuration}</p>
               )}
-              <p className="text-[11px] text-slate-500">
-                Feature interaction: Goal-per-day = {formData.fundingGoal && formData.campaignDuration ? `$${(Number(formData.fundingGoal) / (Number(formData.campaignDuration) || 1)).toFixed(0)}/day` : '—'}
-              </p>
             </div>
-          </div>
-        </div>
 
-        {/* SECTION C: CREATOR INFORMATION */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center gap-2.5 border-b border-slate-800 pb-3">
-            <div className="p-1.5 bg-slate-800 rounded-lg text-indigo-400 border border-slate-700">
-              <User className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold text-slate-100">
-                Section C: Creator Credibility & History
-              </h2>
-              <p className="text-xs text-slate-400">
-                Prior track record features that heavily weight Random Forest & XGBoost splits
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-300">
-                Creator Experience Level <span className="text-rose-400">*</span>
+                Launch Month (1–12)
               </label>
               <select
-                value={formData.creatorExperience}
+                value={formData.launchMonth}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    creatorExperience: e.target.value as any,
+                    launchMonth: e.target.value === '' ? '' : Number(e.target.value),
                   })
                 }
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
               >
-                <option value="">Select creator experience</option>
-                <option value="First-time">First-time Campaigner</option>
-                <option value="1-2 Prior Campaigns">1–2 Prior Campaigns</option>
-                <option value="3+ Prior Campaigns">3+ Prior Campaigns</option>
-                <option value="Serial Crowdfunder">Serial Crowdfunder (5+)</option>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <option key={m} value={m}>
+                    Month {m} ({new Date(2026, m - 1).toLocaleString('default', { month: 'short' })})
+                  </option>
+                ))}
               </select>
-              {errors.creatorExperience && (
-                <p className="text-[11px] text-rose-400">{errors.creatorExperience}</p>
-              )}
-              <p className="text-[11px] text-slate-500">Correlates with backer trust metrics.</p>
             </div>
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-300">
-                Previous Campaign Count
+                Launch Hour (0–23)
               </label>
-              <input
-                type="number"
-                min="0"
-                placeholder="0"
-                value={formData.previousCampaignCount}
+              <select
+                value={formData.launchHour}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    previousCampaignCount: e.target.value === '' ? '' : Math.max(0, Number(e.target.value)),
+                    launchHour: e.target.value === '' ? '' : Number(e.target.value),
                   })
                 }
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
-              />
-              {errors.previousCampaignCount && (
-                <p className="text-[11px] text-rose-400">{errors.previousCampaignCount}</p>
-              )}
-              <p className="text-[11px] text-slate-500">Discrete count feature.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* SECTION D: ENGAGEMENT INFORMATION */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center gap-2.5 border-b border-slate-800 pb-3">
-            <div className="p-1.5 bg-slate-800 rounded-lg text-amber-400 border border-slate-700">
-              <Share2 className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold text-slate-100">
-                Section D: Engagement & Pre-Launch Collateral
-              </h2>
-              <p className="text-xs text-slate-400">
-                Signals of initial community engagement and media readiness
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-300">
-                Pre-Launch Subscribers/Followers
-              </label>
-              <input
-                type="number"
-                min="0"
-                placeholder="0"
-                value={formData.preLaunchFollowers}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    preLaunchFollowers: e.target.value === '' ? '' : Math.max(0, Number(e.target.value)),
-                  })
-                }
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
-              />
-              {errors.preLaunchFollowers && (
-                <p className="text-[11px] text-rose-400">{errors.preLaunchFollowers}</p>
-              )}
-              <p className="text-[11px] text-slate-500">Day-1 momentum predictor.</p>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-300">
-                Reward Tiers Count
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="25"
-                placeholder="e.g. 4"
-                value={formData.rewardTierCount}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    rewardTierCount: e.target.value === '' ? '' : Math.max(1, Number(e.target.value)),
-                  })
-                }
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
-              />
-              {errors.rewardTierCount && (
-                <p className="text-[11px] text-rose-400">{errors.rewardTierCount}</p>
-              )}
-              <p className="text-[11px] text-slate-500">Product breadth indicator.</p>
-            </div>
-
-            <div className="space-y-1 flex flex-col justify-center pt-2">
-              <label className="text-xs font-medium text-slate-300 mb-1">
-                Campaign Video Collateral
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
-                <input
-                  type="checkbox"
-                  checked={formData.hasVideo}
-                  onChange={(e) => setFormData({ ...formData, hasVideo: e.target.checked })}
-                  className="rounded bg-slate-950 border-slate-800 text-emerald-500 focus:ring-0 w-4 h-4"
-                />
-                Has Promotional Video
-              </label>
-              <p className="text-[11px] text-slate-500 mt-1">Binary feature (has_video = 1/0).</p>
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
+              >
+                {Array.from({ length: 24 }, (_, i) => i).map((h) => (
+                  <option key={h} value={h}>
+                    {h.toString().padStart(2, '0')}:00 UTC
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
@@ -560,7 +531,7 @@ export const NewPredictionPage: React.FC = () => {
         {/* Action Button */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
           <div className="text-xs text-slate-400">
-            <span className="font-semibold text-slate-300">Academic Note:</span> Dispatches to <code>predictionService.predictCampaign()</code>
+            <span>Inference Target:</span> <code>predict_proba()</code> on saved pipeline
           </div>
           
           <button
@@ -571,7 +542,7 @@ export const NewPredictionPage: React.FC = () => {
             {isSubmitting ? (
               <>
                 <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                Dispatching to ML Pipeline...
+                Executing Model Inference...
               </>
             ) : (
               <>

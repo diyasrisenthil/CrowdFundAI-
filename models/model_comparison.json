@@ -1,0 +1,86 @@
+{
+  "best_model": "Gradient Boosting",
+  "best_roc_auc": 0.7609,
+  "models": {
+    "Logistic Regression": {
+      "model_name": "Logistic Regression",
+      "description": "Linear classifier with L2 regularization",
+      "fit_time_seconds": 14.2,
+      "accuracy": 0.6749,
+      "precision": 0.6193,
+      "recall": 0.5063,
+      "f1_score": 0.5571,
+      "roc_auc": 0.7279,
+      "confusion_matrix": [
+        [
+          31208,
+          8336
+        ],
+        [
+          13228,
+          13563
+        ]
+      ]
+    },
+    "Decision Tree": {
+      "model_name": "Decision Tree",
+      "description": "Single decision tree with depth constraint to prevent overfitting",
+      "fit_time_seconds": 12.2,
+      "accuracy": 0.6722,
+      "precision": 0.6098,
+      "recall": 0.5233,
+      "f1_score": 0.5633,
+      "roc_auc": 0.7207,
+      "confusion_matrix": [
+        [
+          30573,
+          8971
+        ],
+        [
+          12771,
+          14020
+        ]
+      ]
+    },
+    "Random Forest": {
+      "model_name": "Random Forest",
+      "description": "Ensemble of 100 decision trees using bagging",
+      "fit_time_seconds": 14.22,
+      "accuracy": 0.6802,
+      "precision": 0.6469,
+      "recall": 0.4583,
+      "f1_score": 0.5365,
+      "roc_auc": 0.738,
+      "confusion_matrix": [
+        [
+          32842,
+          6702
+        ],
+        [
+          14512,
+          12279
+        ]
+      ]
+    },
+    "Gradient Boosting": {
+      "model_name": "Gradient Boosting",
+      "description": "Histogram-based Gradient Boosting Decision Trees",
+      "fit_time_seconds": 13.9,
+      "accuracy": 0.6969,
+      "precision": 0.6453,
+      "recall": 0.5538,
+      "f1_score": 0.5961,
+      "roc_auc": 0.7609,
+      "confusion_matrix": [
+        [
+          31388,
+          8156
+        ],
+        [
+          11953,
+          14838
+        ]
+      ]
+    }
+  }
+}
